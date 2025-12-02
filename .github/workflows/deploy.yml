@@ -1,0 +1,38 @@
+name: Deploy Web App
+
+on:
+  # O deploy será disparado toda vez que houver um push na branch 'main'
+  push:
+    branches:
+      - main
+  # Também permite o disparo manual (opcional, mas útil)
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v4
+
+      # Configura o ambiente Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Instala as dependências (cria o node_modules no servidor do GitHub)
+      - name: Install Dependencies
+        run: npm install
+
+      # Cria a pasta 'dist' com o site compilado
+      - name: Build Project
+        run: npm run build
+      
+      # Faz o deploy da pasta 'dist' para a branch 'gh-pages'
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
